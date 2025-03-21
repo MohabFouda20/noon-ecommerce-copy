@@ -1,0 +1,1 @@
+GET http://localhost:3000/users/get-one-by-id?id=1

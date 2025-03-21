@@ -1,0 +1,13 @@
+POST http://localhost:3000/users/sign-up
+Content-Type: application/json
+
+{
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "johnDoe@doe.com",
+    "password": "@Mm123456",
+    "phone": "1234567890",
+    "role": "user",
+    "isVerified": false,
+    "createdAt": "2021-01-01T00:00:00.000Z"
+}
