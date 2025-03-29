@@ -45,16 +45,28 @@ export class User {
         type: 'varchar',
         length: 10,
         nullable: false,
+        default: 'user',
     })
     role: string;
 
     @Column({
         type: 'boolean',
         nullable: false,
+        default: false,
     })
     isVerified: boolean;
 
 
-    @CreateDateColumn()
+    @CreateDateColumn({
+        type: 'timestamp',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
     createdAt: Date;
+
+    @Column({
+        type:"varchar",
+        nullable:true,
+        default:'',
+    })
+    refreshToken:string|null
 }
