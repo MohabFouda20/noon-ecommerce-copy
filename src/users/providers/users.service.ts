@@ -66,21 +66,22 @@ export class UsersService {
       console.error('Error updating user:', error);
     }
   }
-/*   public async findOneByRefreshToken(refreshToken: string) {
-    let user: User |null = null;
-    if (!refreshToken) {
-      throw new RequestTimeoutException('Invalid refresh token');
+   /**
+    * create new user by using create signup provider from auth module 
+    * here we only will create user and not send email
+    * send email in sign up provider
+    */
+
+  public async deleteUser(id: number) {
+    try {
+      const user = await this.findOneById(id);
+      if (!user) {
+        throw new Error('User not found');
+      }
+  
+      await this.userRepository.delete(user.id);
+    } catch (error) {
+      console.error('Error deleting user:', error);
     }
-    const hashedRefreshToken = await this.hashingProvider.hashPassword(refreshToken)
-    try{
-        user = await this.userRepository.findOneBy({refreshToken:hashedRefreshToken})
-    }catch(error){
-        console.log(error)
-        throw new RequestTimeoutException("Database query failed. Please try again.")
-    }
-    if(!user){
-        throw new RequestTimeoutException("User not found. Please register or login")
-    }
-    return user
-  } */
+  }
 }
