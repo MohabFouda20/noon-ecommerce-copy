@@ -1,11 +1,44 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { HashingProvider } from './providers/hashing.provider';
-import { SignInService } from './providers/sign-in.service';
 import { UsersModule } from 'src/users/users.module';
+import { AuthService } from './providers/auth.service';
+import { SignInProvider } from './providers/sign-in.provider';
+import { TokenService } from './providers/tokens.service';
+import { AuthController } from './auth.controller';
+import { JwtModule } from '@nestjs/jwt';
+import { LogOutProvider } from './providers/log-out.provider';
+import { SignUpProvider } from './providers/sign-up.provider';
+import { VerifyByTokenProvider } from './providers/verify-by-token.provider';
+import jwtConfig from './config/jwt.config';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
-    imports: [UsersModule],
-  providers: [HashingProvider, SignInService],
-    exports: [HashingProvider, SignInService],
+  imports: [
+    forwardRef(() => UsersModule),
+    MailModule,
+    ConfigModule.forRoot({ load: [jwtConfig], isGlobal: true }), // ✅ Ensure ConfigModule is loaded globally
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('jwt.secret'),
+        signOptions: {
+          expiresIn: configService.get<string>('jwt.accessTokenTTL'),
+        },
+      }),
+    }),
+  ],
+  providers: [
+    HashingProvider,
+    AuthService,
+    SignInProvider,
+    TokenService,
+    LogOutProvider,
+    SignUpProvider,
+    VerifyByTokenProvider,
+  ],
+  exports: [HashingProvider, AuthService, JwtModule, TokenService],
+  controllers: [AuthController],
 })
 export class AuthModule {}

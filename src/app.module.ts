@@ -4,8 +4,9 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { SignInService } from './auth/providers/sign-in.service';
 import { AuthModule } from './auth/auth.module';
+import { MailModule } from './mail/mail.module';
+
 
 @Module({
   // connection of the dataBase
@@ -27,9 +28,10 @@ import { AuthModule } from './auth/auth.module';
     })
   }),
     AuthModule,
+    MailModule,
   ],
   controllers: [AppController],
-  providers: [AppService, SignInService],
+  providers: [AppService],
 })
 export class AppModule {
 }
