@@ -1,4 +1,4 @@
-import { Inject, Injectable, InternalServerErrorException, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, InternalServerErrorException, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/providers/users.service';
 import { HashingProvider } from './hashing.provider';
@@ -10,6 +10,7 @@ import { User } from 'src/users/user.entity';
 export class TokenService {
   constructor(
     private readonly jwtService: JwtService,
+    @Inject(forwardRef(()=> UsersService))
     private readonly usersService: UsersService,
     private readonly hashingService: HashingProvider,
 
@@ -81,7 +82,6 @@ export class TokenService {
     let payload :any 
     try{
       payload = this.jwtService.verify(refreshToken, { secret: this.jwtConfigration.refreshSecret })
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch(error){
       throw new UnauthorizedException('Invalid refresh token');
     }
@@ -99,6 +99,36 @@ export class TokenService {
     } catch (error) {
       console.error('Error revoking refresh token:', error);
       throw new InternalServerErrorException('Failed to revoke refresh token');
+    }
+  }
+  public async ReturnUserIdFromToken(token: string){
+    try{
+      const payload = await this.jwtService.verify(token, {secret: this.jwtConfigration.secret})
+      return payload.sub
+    }catch(error){
+      console.error('Error verifying token:', error);
+      throw new UnauthorizedException('Invalid or expired access token');
+    }
+  }
+  public async generateEmailToken(userId:number){
+    try {
+      return await this.signToken(userId, this.jwtConfigration.emailTokenTTL);
+    } catch (error) {
+      console.error('Error generating email token:', error);
+      throw new InternalServerErrorException('Failed to generate email token');
+    }
+  }
+  public async verifyEmailToken(token:string){
+    try {
+      const payload = this.jwtService.verify<{ sub: number }>(token, {secret:this.jwtConfigration.secret})
+      const user = await this.usersService.findOneById(payload.sub);
+      if (!user) {
+        throw new UnauthorizedException('Invalid or expired email token');
+      }
+      return user.id;
+    }catch(error){
+      console.error('Error verifying email token:', error);
+      throw new RequestTimeoutException('can not verify the email token');
     }
   }
 }

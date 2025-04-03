@@ -69,4 +69,11 @@ export class User {
         default:'',
     })
     refreshToken:string|null
+    
+    @Column({
+        type:"varchar",
+        nullable:true,
+        default:'',
+    })
+    OTP:string|null
 }

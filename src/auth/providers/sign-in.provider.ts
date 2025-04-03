@@ -1,4 +1,4 @@
-import { Injectable, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/providers/users.service';
 import { HashingProvider } from './hashing.provider';
 import { JwtService } from '@nestjs/jwt';
@@ -10,9 +10,9 @@ import { TokenService } from './tokens.service';
 export class SignInProvider {
 
     constructor(
+        @Inject(UsersService)
             private readonly usersService: UsersService,
             private readonly hahshingService: HashingProvider,
-            private readonly jwtService: JwtService,
             private readonly tokenService: TokenService,
         ){}
     

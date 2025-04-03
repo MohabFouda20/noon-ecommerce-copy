@@ -5,6 +5,7 @@ import { SignInDto } from '../dtos/sign-in.dto';
 import { LogOutProvider } from './log-out.provider';
 import { SignUpDto } from '../dtos/sign-up.dto';
 import { SignUpProvider } from './sign-up.provider';
+import { VerifyByTokenProvider } from './verify-by-token.provider';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +14,7 @@ export class AuthService {
         private readonly tokenService: TokenService,
         private readonly logoutProvider: LogOutProvider,
         private readonly signUpProvider:SignUpProvider,
+        private readonly verifyByTokenProvider:VerifyByTokenProvider,
     ){}
     public async signIn(signInDto:SignInDto){
         return await this.signInProvider.signIn(signInDto)
@@ -25,5 +27,8 @@ export class AuthService {
     }
     public async SignUp(signUpDto:SignUpDto){
         return await this.signUpProvider.signUp(signUpDto)
+    }
+    public async verifyEmailByToken(token:string){
+        return await this.verifyByTokenProvider.verifyEmailByToken(token)
     }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Param,
   Post,
   Req,
   Res,
@@ -73,5 +74,10 @@ export class AuthController {
   @Post('sign-up')
   public async signUp(@Body() signUpDto: SignUpDto) {
     return this.authService.SignUp(signUpDto);
+  }
+
+  @Post('verify')
+  public async verifyEmail(@Param('token') token:string){
+    return this.authService.verifyEmailByToken(token)
   }
 }
