@@ -6,6 +6,7 @@ import { LogOutProvider } from './log-out.provider';
 import { SignUpDto } from '../dtos/sign-up.dto';
 import { SignUpProvider } from './sign-up.provider';
 import { VerifyByTokenProvider } from './verify-by-token.provider';
+import { ForgetPasswordProvider } from './forget-password.provider';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +16,7 @@ export class AuthService {
         private readonly logoutProvider: LogOutProvider,
         private readonly signUpProvider:SignUpProvider,
         private readonly verifyByTokenProvider:VerifyByTokenProvider,
+        private readonly forgetPasswordProvider:ForgetPasswordProvider
     ){}
     public async signIn(signInDto:SignInDto){
         return await this.signInProvider.signIn(signInDto)
@@ -30,5 +32,11 @@ export class AuthService {
     }
     public async verifyEmailByToken(token:string){
         return await this.verifyByTokenProvider.verifyEmailByToken(token)
+    }
+    public async forgetPassword(email:string){
+        return await this.forgetPasswordProvider.forgetPassword(email)
+    }
+    public async resetPassword(token:string,password:string){
+        return await this.forgetPasswordProvider.resetPassword(token,password)
     }
 }

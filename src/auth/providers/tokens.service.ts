@@ -13,7 +13,6 @@ export class TokenService {
     @Inject(forwardRef(()=> UsersService))
     private readonly usersService: UsersService,
     private readonly hashingService: HashingProvider,
-
     @Inject(jwtConfig.KEY)
     private readonly jwtConfigration: ConfigType<typeof jwtConfig>,
   ) {}
@@ -101,7 +100,7 @@ export class TokenService {
       throw new InternalServerErrorException('Failed to revoke refresh token');
     }
   }
-  public async ReturnUserIdFromToken(token: string){
+  public async getUserIdByToken(token: string){
     try{
       const payload = await this.jwtService.verify(token, {secret: this.jwtConfigration.secret})
       return payload.sub
@@ -112,7 +111,7 @@ export class TokenService {
   }
   public async generateEmailToken(userId:number){
     try {
-      return await this.signToken(userId, this.jwtConfigration.emailTokenTTL);
+      return await this.signToken(userId, this.jwtConfigration.emailTokenTTL );
     } catch (error) {
       console.error('Error generating email token:', error);
       throw new InternalServerErrorException('Failed to generate email token');
@@ -120,16 +119,34 @@ export class TokenService {
   }
   public async verifyEmailToken(token:string){
     try {
-      const payload = this.jwtService.verify<{ sub: number }>(token, {secret:this.jwtConfigration.secret})
+      if (!token) {
+        throw new UnauthorizedException('no token provided');
+      }
+      const payload = this.jwtService.verify(token, {secret:this.jwtConfigration.secret})
       const user = await this.usersService.findOneById(payload.sub);
       if (!user) {
         throw new UnauthorizedException('Invalid or expired email token');
       }
       return user.id;
     }catch(error){
-      console.error('Error verifying email token:', error);
+      console.error('Error verifying email token:', error.message);
       throw new RequestTimeoutException('can not verify the email token');
     }
   }
+  public async generateResetPasswordToken(email:string){
+    try {
+      const user = await this.usersService.findOneByEmail(email)
+      if (!user) {
+        throw new UnauthorizedException('Invalid email');
+      }
+      const token= await this.signToken(user.id , this.jwtConfigration.refreshTokenTTL)
+      console.log(`token = ${token}`) // for better handling only
+      return token ;
+    } catch (error) {
+      console.error('Error generating reset password token:', error);
+      throw new InternalServerErrorException('Failed to generate reset password token');
+    }
+  }
+
 }
   

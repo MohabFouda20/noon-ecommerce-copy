@@ -12,8 +12,6 @@ import { CreateUserProvider } from './create-user.provider';
 import { HashingProvider } from 'src/auth/providers/hashing.provider';
 import { MailService } from 'src/mail/mail.service';
 import { TokenService } from 'src/auth/providers/tokens.service';
-import { OtpProvider } from './otp.provider';
-import { retry } from 'rxjs';
 
 @Injectable()
 export class UsersService {
@@ -22,7 +20,6 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
     private readonly createUserProvider: CreateUserProvider,
     private readonly hashingProvider: HashingProvider,
-    private readonly otpProvider: OtpProvider,
     @Inject(forwardRef(() => TokenService))
     private readonly tokenService: TokenService,
     private readonly mailService: MailService,
@@ -89,7 +86,7 @@ export class UsersService {
   }
 
   public async createUser(createUserDto: CreateUserDto) {
-    const newUser = this.userRepository.create(createUserDto)
+    const newUser = this.userRepository.create(createUserDto);
     try {
       await this.userRepository.save(newUser);
       return newUser;
@@ -113,32 +110,27 @@ export class UsersService {
     }
     return users;
   }
-  private async verifyOtp(userId: number, otp: string) {
-    const isVerified = await this.otpProvider.verifyOtp(userId, otp);
-    if (!isVerified) {
-      throw new RequestTimeoutException('OTP verification failed');
+
+  public async resetPasswordUsingToken(userId: number, newPassword: string) {
+    const user = await this.findOneById(userId);
+    newPassword = await this.hashingProvider.hashPassword(newPassword);
+    user.password = newPassword;
+    try {
+      this.userRepository.save(user);
+    } catch (error) {
+      console.log(error);
+      throw new RequestTimeoutException('Failed to reset password');
     }
-    return isVerified;
   }
 
-  public async updatePassword(
-    userId: number,
-    newPassword: string,
-    otp: string,
-  ) {
-    // if verfied the otp will deleted automatically
-    const isVerified = await this.verifyOtp(userId, otp);
-    if (!isVerified) {
-      throw new RequestTimeoutException('OTP verification failed');
-    }
-    const User = await this.findOneById(userId);
-    if (!User) {
-      throw new RequestTimeoutException('User not found');
-    }
-    const hashedPassword = await this.hashingProvider.hashPassword(newPassword);
-    User.password = hashedPassword;
-    await this.userRepository.save(User);
-    return User;
-  }
+  // need to create reset password with token
 
+  // public async resetPasswordWithToken (token:string, newPassword:string){
+  //   const user = await this.tokenService.verifyEmailToken(token)
+  //   if (!user) {
+  //     throw new RequestTimeoutException('User not found');
+  //   }
+  //   const hashedPassword = await this.hashingProvider.hashPassword(newPassword)
+  //   // this.resetPassword()
+  // }
 }

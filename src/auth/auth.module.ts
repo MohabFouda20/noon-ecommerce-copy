@@ -12,6 +12,7 @@ import { SignUpProvider } from './providers/sign-up.provider';
 import { VerifyByTokenProvider } from './providers/verify-by-token.provider';
 import jwtConfig from './config/jwt.config';
 import { MailModule } from 'src/mail/mail.module';
+import { ForgetPasswordProvider } from './providers/forget-password.provider';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { MailModule } from 'src/mail/mail.module';
     LogOutProvider,
     SignUpProvider,
     VerifyByTokenProvider,
+    ForgetPasswordProvider,
   ],
   exports: [HashingProvider, AuthService, JwtModule, TokenService],
   controllers: [AuthController],

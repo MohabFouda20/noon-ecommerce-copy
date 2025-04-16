@@ -12,7 +12,6 @@ import { CreateUserDto } from '../dtos/create-user.dto';
 import { HashingProvider } from 'src/auth/providers/hashing.provider';
 import { MailService } from 'src/mail/mail.service';
 import { TokenService } from 'src/auth/providers/tokens.service';
-import { OtpProvider } from './otp.provider';
 
 @Injectable()
 export class CreateUserProvider {
@@ -20,7 +19,6 @@ export class CreateUserProvider {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly hashingService: HashingProvider,
-    private readonly otpProvider: OtpProvider,
     private readonly mailService: MailService,
     @Inject(forwardRef(() => TokenService))
     private readonly tokenService: TokenService,
@@ -55,15 +53,11 @@ export class CreateUserProvider {
       await this.userRepository.save(newUser);
 
       const token = await this.tokenService.generateEmailToken(newUser.id);
-      const otp = this.otpProvider.generateOTP(6);
-      console.log('Generated OTP:', otp);
       console.log('Generated token:', token);
-      await this.otpProvider.storeOTP(newUser.id, otp);
-      await this.mailService.sendVerificationEmail(newUser.email, token, otp);
+      await this.mailService.sendVerificationEmail(newUser.email, token);
 
       return {
         message: 'User created successfully',
-        otp: otp, // Return OTP for debugging (do not return OTP in production)
         user: newUser, // Optionally return user data
       };
     } catch (error) {
