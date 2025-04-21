@@ -17,11 +17,12 @@ import { CategoryModule } from './category/category.module';
     ConfigModule.forRoot({isGlobal:true}),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host:process.env.DB_HOST,
-      port: 5432,
-      username: process.env.DB_USER,
-      password: process.env.DB_PASS,
-      database: process.env.DB_NAME,
+      url: process.env.DB_URL,
+      // host:process.env.DB_HOST,
+      // port: 5432,
+      // username: process.env.DB_USER,
+      // password: process.env.DB_PASS,
+      // database: process.env.DB_NAME,
       autoLoadEntities: true,
       synchronize: true,
     

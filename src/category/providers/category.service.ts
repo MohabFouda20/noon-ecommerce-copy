@@ -36,8 +36,8 @@ export class CategoryService {
     const categories = await this.categoryRepository.find();
     return categories;
   }
-  public async update(patchCategoryDto: PatchCategoryDto) {
-    const category = await this.findOneById(patchCategoryDto.id);
+  public async update(id: number, patchCategoryDto: PatchCategoryDto) {
+    const category = await this.findOneById(id);
     if (!category) {
       throw new RequestTimeoutException('no category with that id');
     }

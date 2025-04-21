@@ -1,4 +1,4 @@
-import { Injectable, RequestTimeoutException } from '@nestjs/common';
+import { ConflictException, Injectable, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Products } from '../product.entity';
 import { Repository } from 'typeorm';
@@ -49,10 +49,10 @@ export class ProductsService {
     }
 
   }
-  public async updateProduct(patchProductDto:PatchProductDto){
-    let product = await this.findProductById(patchProductDto.id)
+  public async updateProduct(id:number , patchProductDto:PatchProductDto){
+    let product = await this.findProductById(id)
     if (!product) {
-        throw new RequestTimeoutException('product not found')
+        throw new ConflictException('product not found')
     } 
     product.name = patchProductDto.name ?? product.name
     product.description = patchProductDto.description ?? product.description
