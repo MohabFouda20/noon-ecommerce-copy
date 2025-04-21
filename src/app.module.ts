@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
+import { ProductsModule } from './products/products.module';
+import { CategoryModule } from './category/category.module';
 
 
 @Module({
@@ -13,22 +15,22 @@ import { MailModule } from './mail/mail.module';
   imports: [
     UsersModule,
     ConfigModule.forRoot({isGlobal:true}),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+    TypeOrmModule.forRoot({
       type: 'postgres',
-      host: config.get('database.host'),
-      port: config.get<number>('database.port'),
-      username: 'postgres',
-      password: config.get<string>('database.password')||"password",
-      database: config.get('database.name'),
+      url: process.env.DB_URL,
+      // host:process.env.DB_HOST,
+      // port: 5432,
+      // username: process.env.DB_USER,
+      // password: process.env.DB_PASS,
+      // database: process.env.DB_NAME,
       autoLoadEntities: true,
       synchronize: true,
-    })
+    
   }),
     AuthModule,
     MailModule,
+    ProductsModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

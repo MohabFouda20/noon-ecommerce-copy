@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   Body,
   Controller,
-  Param,
+  Get,
   Post,
+  Query,
   Req,
   Res,
   UnauthorizedException,
@@ -76,8 +78,25 @@ export class AuthController {
     return this.authService.SignUp(signUpDto);
   }
 
-  @Post('verify')
-  public async verifyEmail(@Param('token') token:string){
-    return this.authService.verifyEmailByToken(token)
+  @Get('verify')
+  public async verifyEmail(@Query('token') token: string) {
+    if (!token) {
+      throw new BadRequestException('Verification token is required');
+    }
+    try {
+      return await this.authService.verifyEmailByToken(token);
+    } catch (error) {
+      throw new UnauthorizedException(error.message);
+    }
+  }
+  @Post('forget-password')
+  public async forgetPassword(@Body('email')email:string){
+    return this.authService.forgetPassword(email)
+  }
+
+  @Post('reset-password')
+  public async resetPassword(@Query('token')token:string , @Body('password')password:string){
+    return this.authService.resetPassword(token,password)
   }
 }
+

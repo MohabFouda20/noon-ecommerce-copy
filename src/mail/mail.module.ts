@@ -11,12 +11,12 @@ import { join } from 'path';
             inject: [ConfigService],
             useFactory: (config: ConfigService) => ({
                 transport: {
-                    host: config.get<string>('mail.host') || 'smtp.mailtrap.io',
-                    port: 2525,
+                    host: process.env.MAIL_HOST,
+                    port: 587,
                     secure: false,
                     auth: {
-                        user: config.get<string>('mail.user'),
-                        pass: config.get<string>('mail.password'),
+                        user: process.env.MAIL_USER,
+                        pass: process.env.MAIL_PASS,
                     },
                 },
                 template: {
@@ -27,7 +27,7 @@ import { join } from 'path';
                     },
                 },
                 defaults: {
-                    from: 'support <no-reply@noon.com>',
+                    from: 'fouda.hoba@gmail.com', // will change it later 
                 },
             }),
         }),

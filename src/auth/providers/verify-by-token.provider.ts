@@ -15,7 +15,10 @@ export class VerifyByTokenProvider {
             throw new Error('User not found');
         }
         user.isVerified = true;
-        user.OTP = null; // delete the OTP after successful verification
         await this.userService.updateUser(user);
+        return {
+            message: 'Email verified successfully',
+            user,
+        };
     }
 }
