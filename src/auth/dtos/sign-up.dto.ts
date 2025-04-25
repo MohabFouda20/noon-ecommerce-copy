@@ -1,6 +1,7 @@
 import { IsBoolean, IsDate, IsEmail, IsNotEmpty, IsString, IsStrongPassword, MaxLength, MinLength } from "class-validator";
 
 export class SignUpDto {
+    
     @IsString()
     @IsNotEmpty()
     @MinLength(4)

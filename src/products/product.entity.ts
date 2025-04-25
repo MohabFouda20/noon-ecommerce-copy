@@ -43,6 +43,14 @@ export class Products {
   })
   category: Category;
 
+  @Column({
+    type: 'varchar',
+    array: true,
+    nullable: true,
+    default: null,
+  })
+  images:string[]
+
   @CreateDateColumn({
     name: 'created_at',
     type: 'timestamp',
