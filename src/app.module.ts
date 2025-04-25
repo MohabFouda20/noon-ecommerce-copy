@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { MailModule } from './mail/mail.module';
 import { ProductsModule } from './products/products.module';
 import { CategoryModule } from './category/category.module';
+import { FileUploadModule } from './file-upload/file-upload.module';
 
 
 @Module({
@@ -31,6 +32,7 @@ import { CategoryModule } from './category/category.module';
     MailModule,
     ProductsModule,
     CategoryModule,
+    FileUploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

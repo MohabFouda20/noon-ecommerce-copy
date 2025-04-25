@@ -1,4 +1,4 @@
-import { Injectable, RequestTimeoutException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from '../category.entity';
 import { Repository } from 'typeorm';
@@ -12,24 +12,30 @@ export class CategoryService {
     private readonly categoryRepository: Repository<Category>,
   ) {}
   public async Create(createCategoryDto: CreateCategoryDto) {
-    const isExist = await this.categoryRepository.findBy({
+    const existingCategory = await this.categoryRepository.findBy({
       name: createCategoryDto.name,
     });
-    if (!isExist) {
-      throw new RequestTimeoutException('category is found');
+    if (existingCategory.length > 0) {
+      throw new BadRequestException('Category already exists');
     }
+
     try {
       const category = this.categoryRepository.create(createCategoryDto);
       await this.categoryRepository.save(category);
       return category;
     } catch (error) {
-      throw new RequestTimeoutException('can not create category');
+      throw new BadRequestException('Failed to create category');
     }
   }
   public async findOneById(categoryId: number) {
     const category = await this.categoryRepository.findOneBy({
       id: categoryId,
     });
+    
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+    
     return category;
   }
   public async findAll() {
@@ -38,28 +44,34 @@ export class CategoryService {
   }
   public async update(id: number, patchCategoryDto: PatchCategoryDto) {
     const category = await this.findOneById(id);
-    if (!category) {
-      throw new RequestTimeoutException('no category with that id');
+    
+    // Check if new name already exists
+    if (patchCategoryDto.name && patchCategoryDto.name !== category.name) {
+      const existingCategory = await this.categoryRepository.findBy({
+        name: patchCategoryDto.name,
+      });
+      if (existingCategory.length > 0) {
+        throw new BadRequestException('Category name already exists');
+      }
     }
-    category.name = patchCategoryDto.name ?? category.name;
-    category.description = patchCategoryDto.description ?? category.description;
+
+    Object.assign(category, patchCategoryDto);
+
     try {
       await this.categoryRepository.save(category);
-      return 'updated succesfully';
+      return category;
     } catch (error) {
-      throw new RequestTimeoutException('can not update category');
+      throw new BadRequestException('Failed to update category');
     }
   }
-  public async delete(catergoryId) {
-    const category = await this.findOneById(catergoryId);
-    if (!category) {
-      throw new RequestTimeoutException('no category with that id');
-    }
+  public async delete(categoryId: number) {
+    const category = await this.findOneById(categoryId);
+    
     try {
-      await this.categoryRepository.delete(category);
-      return 'delete succesfully';
+      await this.categoryRepository.delete({ id: category.id });
+      return { message: 'Category deleted successfully' };
     } catch (error) {
-      throw new RequestTimeoutException('can not delete the category');
+      throw new BadRequestException('Failed to delete category');
     }
   }
 }
